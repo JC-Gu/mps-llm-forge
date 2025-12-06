@@ -1,0 +1,67 @@
+# Model Configuration for Llama 3 8B
+
+# Architecture Details
+architecture:
+  model_type: "llama"
+  vocab_size: 128256
+  hidden_size: 4096
+  intermediate_size: 11008
+  num_hidden_layers: 32
+  num_attention_heads: 32
+  num_key_value_heads: 8
+  hidden_act: "silu"
+  max_position_embeddings: 8192
+  initializer_range: 0.02
+  rms_norm_eps: 1e-6
+  use_cache: true
+  pad_token_id: null
+  bos_token_id: 1
+  eos_token_id: 2
+  pretraining_tp: 1
+  tie_word_embeddings: false
+  rope_theta: 10000.0
+  rope_scaling: null
+  attention_bias: false
+
+# Tokenizer Configuration
+tokenizer:
+  model_max_length: 8192
+  padding_side: "right"
+  truncation_side: "right"
+  clean_up_tokenization_spaces: false
+  use_fast: true
+  legacy: false
+
+# Training Specific Settings
+training:
+  # Memory optimization
+  use_gradient_checkpointing: true
+  use_cache: false  # Disable during training
+  
+  # Attention optimization
+  attn_implementation: "flash_attention_2"  # If available
+  use_flash_attention: true
+  
+  # Precision
+  torch_dtype: "bfloat16"
+  use_4bit: false  # Set to true for 4-bit quantization if needed
+  
+  # LoRA specific
+  lora_rank: 16
+  lora_alpha: 32
+  lora_dropout: 0.1
+  
+# Hardware Optimization (Mac Mini)
+hardware:
+  device_map: "auto"
+  max_memory: "14GB"
+  offload_folder: "offload"
+  low_cpu_mem_usage: true
+  
+# Quantization (Optional, for memory efficiency)
+quantization:
+  load_in_4bit: false
+  load_in_8bit: false
+  bnb_4bit_compute_dtype: "bfloat16"
+  bnb_4bit_use_double_quant: true
+  bnb_4bit_quant_type: "nf4"

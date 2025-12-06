@@ -1,0 +1,114 @@
+# Training Configuration for Llama 3 8B LoRA Fine-tuning
+
+# Model Configuration
+model:
+  base_model: "meta-llama/Meta-Llama-3-8B-Instruct"
+  model_type: "llama"
+  trust_remote_code: false
+  dtype: "bfloat16"  # Use bfloat16 for better numerical stability
+
+# LoRA Configuration
+lora:
+  r: 16                    # LoRA rank
+  lora_alpha: 32           # LoRA scaling factor
+  target_modules:          # Target modules for LoRA
+    - "q_proj"
+    - "v_proj"
+    - "k_proj"
+    - "o_proj"
+  lora_dropout: 0.1
+  bias: "none"             # No bias for memory efficiency
+  task_type: "CAUSAL_LM"
+
+# Training Configuration
+training:
+  num_train_epochs: 3
+  per_device_train_batch_size: 1
+  gradient_accumulation_steps: 8
+  learning_rate: 0.00002
+
+  
+  weight_decay: 0.01
+  warmup_steps: 100
+  max_steps: 500
+  save_steps: 50
+  eval_steps: 50
+  logging_steps: 10
+  
+  # Optimization
+  lr_scheduler_type: "cosine"
+  max_grad_norm: 1.0
+  
+  # Memory optimization
+  gradient_checkpointing: true
+  dataloader_pin_memory: false
+  remove_unused_columns: false
+  
+  # Mixed precision
+  fp16: false
+  bf16: true
+
+# Data Configuration
+data:
+  max_seq_length: 2048
+  text_column: "text"
+  instruction_column: "instruction"
+  input_column: "input"
+  output_column: "output"
+  
+  # Data processing
+  preprocessing_num_workers: 4
+  overwrite_cache: false
+  
+  # Validation split
+  validation_split_percentage: 10
+
+# Output Configuration
+output:
+  output_dir: "outputs"
+  save_total_limit: 3
+  load_best_model_at_end: true
+  metric_for_best_model: "eval_loss"
+  greater_is_better: false
+  
+  # Checkpointing
+  save_strategy: "steps"
+  eval_strategy: "steps"
+  save_safetensors: true
+
+# Logging Configuration
+logging:
+  log_level: "info"
+  log_dir: "logs"
+  tensorboard_dir: "logs/tensorboard"
+  wandb_project: "llama3-lora-finetuning"
+  wandb_entity: null  # Set your wandb username if using
+  
+  # Logging frequency
+  logging_first_step: true
+  logging_dir: "logs"
+
+# Hardware Configuration (Mac Mini specific)
+hardware:
+  device: "auto"           # auto, mps, cpu
+  use_mps: true            # Use Metal Performance Shaders
+  use_cpu_offload: true    # Offload optimizer states to CPU
+  max_memory: "14GB"       # Reserve some RAM for system
+  
+# Evaluation Configuration
+evaluation:
+  eval_batch_size: 1
+  prediction_loss_only: false
+  perplexity: true
+  generation_eval: true
+  max_eval_samples: 100
+  
+# Generation Configuration (for evaluation)
+generation:
+  max_new_tokens: 128
+  do_sample: true
+  temperature: 0.7
+  top_p: 0.9
+  repetition_penalty: 1.1
+  pad_token_id: 0
+  eos_token_id: 2
